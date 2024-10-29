@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Clientes</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Kablammo&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap" rel="stylesheet" />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+        color: #f0f0f0;
+        font-family: "Amita", cursive;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 600px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .title {
+        font-family: "Kablammo", cursive;
+        font-size: 36px;
+        margin-bottom: 15px;
+        text-align: center;
+        color: #00bfa6;
+      }
+
+      .lista-clientes {
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+        padding: 15px;
+      }
+
+      .cliente-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 1px solid #444;
+        color: #f0f0f0;
+        transition: background-color 0.3s ease;
+      }
+
+      .cliente-item:hover {
+        background-color: rgba(0, 191, 166, 0.2);
+      }
+
+      .cliente-item:last-child {
+        border-bottom: none;
+      }
+
+      .add-button-container {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+      }
+
+      .circle-button {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #008080;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 36px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      .circle-button:hover {
+        background-color: #00bfa6;
+        transform: scale(1.1);
+      }
+
+      .link-voltar {
+        text-decoration: none;
+        color: #00bfa6;
+        font-weight: bold;
+        margin-top: 10px;
+        transition: color 0.3s ease;
+      }
+
+      .link-voltar:hover {
+        color: #004d4d;
+      }
+
+      /* Customização da barra de rolagem */
+      .lista-clientes::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .lista-clientes::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+      }
+
+      .lista-clientes::-webkit-scrollbar-thumb {
+        background-color: #444;
+        border-radius: 10px;
+      }
+
+      .lista-clientes::-webkit-scrollbar-thumb:hover {
+        background-color: #00bfa6;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="title">Lista de Clientes</h1>
+
+      <div class="lista-clientes" id="lista-clientes">
+        <!-- Clientes serão carregados aqui -->
+      </div>
+
+      <div class="add-button-container">
+        <div class="circle-button" onclick="window.location.href='adicionar-cliente.html'">+</div>
+      </div>
+
+      <a href="index.html" class="link-voltar">Voltar para Página Inicial</a>
+    </div>
+
+    <script>
+      async function carregarClientes() {
+        try {
+          const response = await fetch('/clientes');
+          if (!response.ok) throw new Error('Erro ao carregar clientes');
+
+          const clientes = await response.json();
+          const listaContainer = document.getElementById('lista-clientes');
+
+          clientes.forEach(cliente => {
+            const divCliente = document.createElement('div');
+            divCliente.classList.add('cliente-item');
+            divCliente.innerHTML = `
+              <span>${cliente.nome}</span>
+              <span>${cliente.local || ''}</span>
+            `;
+            listaContainer.appendChild(divCliente);
+          });
+        } catch (error) {
+          console.error('Erro ao carregar clientes:', error);
+          alert('Erro ao carregar clientes.');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', carregarClientes);
+    </script>
+  </body>
+</html>

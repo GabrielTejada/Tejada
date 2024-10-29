@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financeiro</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Kablammo&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Reset global */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body.financeiro {
+      background-color: #101010;
+      color: #e0e0e0;
+      font-family: 'Amita', cursive;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .menu-bar {
+      background-color: #212121;
+      height: 60px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      font-family: 'Kablammo', cursive;
+      font-size: 28px;
+      color: #00bfa6;
+    }
+
+    .container {
+      background-color: #1a1a1a;
+      border-radius: 15px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: calc(100vh - 120px);
+      overflow: hidden;
+    }
+
+    .summary-container {
+      display: flex;
+      justify-content: space-around;
+      gap: 15px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #212121, #2b2b2b);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.8);
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 1);
+    }
+
+    .card h2 {
+      color: #00bfa6;
+      margin-bottom: 8px;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .filters input, .filters select {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background-color: #2b2b2b;
+      color: white;
+      font-family: 'Amita', cursive;
+    }
+
+    .filters input::placeholder {
+      color: #999;
+    }
+
+    .extrato-container {
+      flex: 1;
+      overflow-y: auto;
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #1e1e1e;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+      color: #e0e0e0;
+    }
+
+    th {
+      background-color: #00bfa6;
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background-color: #333;
+    }
+
+    .back-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #444;
+      color: white;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body class="financeiro">
+  <div class="menu-bar">
+    <div class="header">TEJADA DOCES & SALGADOS</div>
+  </div>
+
+  <div class="container">
+    <div class="summary-container">
+      <div class="card">
+        <h2>Total do Mês</h2>
+        <p id="total-mes">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h2>Total Pago</h2>
+        <p id="total-pago">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h2>Total Pendente</h2>
+        <p id="total-pendente">R$ 0,00</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input type="date" id="filtro-data" placeholder="Data">
+      <select id="filtro-cliente">
+        <option value="">Filtrar por Cliente</option>
+      </select>
+      <select id="filtro-status">
+        <option value="">Filtrar por Status</option>
+        <option value="PENDENTE">Pendente</option>
+        <option value="CONCLUIDO">Concluído</option>
+      </select>
+    </div>
+
+    <div class="extrato-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Descrição</th>
+            <th>Valor</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="extrato-movimentacoes">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="back-button" onclick="window.location.href='index.html'">&lt;</div>
+
+  <script>
+    let extratoCompleto = [];
+
+    async function carregarFinanceiro() {
+      try {
+        const response = await fetch('/financeiro');
+        const { totalMes, totalPago, totalPendente, extrato } = await response.json();
+
+        extratoCompleto = extrato;
+        document.getElementById('total-mes').textContent = `R$ ${totalMes.toFixed(2).replace('.', ',')}`;
+        document.getElementById('total-pago').textContent = `R$ ${totalPago.toFixed(2).replace('.', ',')}`;
+        document.getElementById('total-pendente').textContent = `R$ ${totalPendente.toFixed(2).replace('.', ',')}`;
+
+        atualizarTabela(extrato);
+        preencherClientes(extrato);
+      } catch (error) {
+        console.error('Erro ao carregar financeiro:', error);
+      }
+    }
+
+    function atualizarTabela(extrato) {
+      const tabela = document.getElementById('extrato-movimentacoes');
+      tabela.innerHTML = '';
+
+      extrato.forEach(mov => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${new Date(mov.data).toLocaleDateString('pt-BR')}</td>
+          <td>${mov.cliente}</td>
+          <td>${mov.descricao}</td>
+          <td>R$ ${mov.valor.toFixed(2).replace('.', ',')}</td>
+          <td>${mov.status || 'PENDENTE'}</td>
+        `;
+        tabela.appendChild(row);
+      });
+    }
+
+    function preencherClientes(extrato) {
+      const clientes = [...new Set(extrato.map(mov => mov.cliente))];
+      const select = document.getElementById('filtro-cliente');
+      clientes.forEach(cliente => {
+        const option = document.createElement('option');
+        option.value = cliente;
+        option.textContent = cliente;
+        select.appendChild(option);
+      });
+    }
+
+    function filtrarExtrato() {
+      const data = document.getElementById('filtro-data').value;
+      const cliente = document.getElementById('filtro-cliente').value;
+      const status = document.getElementById('filtro-status').value;
+      let filtrado = extratoCompleto;
+
+      if (data) filtrado = filtrado.filter(mov => new Date(mov.data).toLocaleDateString('pt-BR') === new Date(data).toLocaleDateString('pt-BR'));
+      if (cliente) filtrado = filtrado.filter(mov => mov.cliente === cliente);
+      if (status) filtrado = filtrado.filter(mov => mov.status === status);
+
+      atualizarTabela(filtrado);
+    }
+
+    document.getElementById('filtro-data').addEventListener('change', filtrarExtrato);
+    document.getElementById('filtro-cliente').addEventListener('change', filtrarExtrato);
+    document.getElementById('filtro-status').addEventListener('change', filtrarExtrato);
+
+    document.addEventListener('DOMContentLoaded', carregarFinanceiro);
+  </script>
+</body>
+</html>

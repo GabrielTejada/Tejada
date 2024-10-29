@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adicionar Cliente</title>
+
+  <!-- Importando fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=Kablammo&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e1e1e, #0d0d0d);
+      margin: 0;
+      font-family: 'Amita', cursive;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container-cliente {
+      background-color: #212121;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Kablammo', cursive;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background-color: #333;
+      color: white;
+    }
+
+    input::placeholder {
+      color: #bbb;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background-color: #00bfa6;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #008080;
+    }
+
+    a {
+      color: #00bfa6;
+      display: block;
+      margin-top: 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      color: #008080;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container-cliente">
+    <h1>Adicionar Cliente</h1>
+    <form id="form-cliente">
+      <input type="text" id="nome" name="nome" placeholder="Nome" required />
+      <input type="tel" id="telefone" name="telefone" placeholder="(00) 0 0000-0000" required />
+      <input type="text" id="local" name="local" placeholder="Local" />
+      <button type="submit">Adicionar Cliente</button>
+    </form>
+    <a href="index.html">Voltar para a Página Inicial</a>
+  </div>
+
+  <script>
+    document.getElementById('form-cliente').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const nome = document.getElementById('nome').value;
+      const telefone = document.getElementById('telefone').value;
+      const local = document.getElementById('local').value;
+
+      try {
+        const response = await fetch('/clientes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, telefone, local }),
+        });
+
+        if (response.ok) {
+          alert('Cliente adicionado com sucesso!');
+          document.getElementById('form-cliente').reset();
+        } else {
+          alert('Erro ao adicionar cliente.');
+        }
+      } catch (error) {
+        alert('Erro de conexão.');
+        console.error('Erro:', error);
+      }
+    });
+  </script>
+
+</body>
+</html>

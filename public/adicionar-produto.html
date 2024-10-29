@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adicionar Produto</title>
+
+  <!-- Importando fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=Kablammo&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e1e1e, #0d0d0d);
+      margin: 0;
+      font-family: 'Amita', cursive;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container-produto {
+      background-color: #212121;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Kablammo', cursive;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background-color: #333;
+      color: white;
+    }
+
+    input::placeholder {
+      color: #bbb;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background-color: #00bfa6;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #008080;
+    }
+
+    a {
+      color: #00bfa6;
+      display: block;
+      margin-top: 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      color: #008080;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container-produto">
+    <h1>Adicionar Produto</h1>
+    <form id="form-produto" method="POST">
+      <input type="text" id="codigo" name="codigo" placeholder="Código" required />
+      <input type="text" id="descricao" name="descricao" placeholder="Descrição" required />
+      <input type="number" id="preco" name="preco" placeholder="Preço" required />
+      <button type="submit">Adicionar Produto</button>
+    </form>
+    <a href="catalogo.html">Ver Catálogo de Produtos</a>
+  </div>
+
+  <script>
+    document.getElementById('form-produto').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const codigo = document.getElementById('codigo').value;
+      const descricao = document.getElementById('descricao').value;
+      const preco = parseFloat(document.getElementById('preco').value);
+
+      try {
+        const response = await fetch('/produtos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ codigo, descricao, preco }),
+        });
+
+        if (response.ok) {
+          alert('Produto adicionado com sucesso!');
+          window.location.href = 'catalogo.html';
+        } else {
+          alert('Erro ao adicionar produto.');
+        }
+      } catch (error) {
+        alert('Erro de conexão.');
+        console.error('Erro:', error);
+      }
+    });
+  </script>
+
+</body>
+</html>

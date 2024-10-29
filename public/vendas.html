@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrar Venda</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Kablammo&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e1e1e, #0d0d0d);
+      font-family: 'Amita', cursive;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .navbar {
+      background-color: #008080;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 0 20px;
+      font-family: 'Kablammo', cursive;
+      font-size: 26px;
+      color: white;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+      margin-top: 80px;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Kablammo', cursive;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input, select {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+    .button-group {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #008080;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #006666;
+    }
+
+    .btn-voltar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #008080;
+      color: white;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .btn-voltar:hover {
+      background-color: #006666;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">TEJADA DOCES & SALGADOS</div>
+
+  <div class="container">
+    <h1>Registrar Venda</h1>
+
+    <form id="form-venda">
+      <div class="form-group">
+        <label for="data">Data:</label>
+        <input type="date" id="data" required />
+      </div>
+
+      <div class="form-group">
+        <label for="cliente">Cliente:</label>
+        <select id="cliente" required>
+          <option value="" disabled selected>Selecione um cliente</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="produto">Produto:</label>
+        <select id="produto" required>
+          <option value="" disabled selected>Selecione um produto</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" id="quantidade" min="1" value="1" required />
+      </div>
+
+      <div class="form-group">
+        <label for="valor_total">Valor Total:</label>
+        <input type="text" id="valor_total" readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="metodo_pagamento">Método de Pagamento:</label>
+        <select id="metodo_pagamento" required>
+          <option value="FIADO" selected>FIADO</option>
+          <option value="PAGO">PAGO</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <button type="submit">Registrar Venda</button>
+      </div>
+    </form>
+  </div>
+
+  <button class="btn-voltar" onclick="window.location.href='index.html'">&lt;</button>
+
+  <script>
+    async function carregarClientes() {
+      try {
+        const response = await fetch('/clientes');
+        const clientes = await response.json();
+        const clienteSelect = document.getElementById('cliente');
+        clientes.forEach(cliente => {
+          const option = document.createElement('option');
+          option.value = cliente.id;
+          option.textContent = cliente.nome;
+          clienteSelect.appendChild(option);
+        });
+      } catch (error) {
+        alert('Erro ao carregar clientes.');
+      }
+    }
+
+    async function carregarProdutos() {
+      try {
+        const response = await fetch('/produtos');
+        const produtos = await response.json();
+        const produtoSelect = document.getElementById('produto');
+        produtos.forEach(produto => {
+          const option = document.createElement('option');
+          option.value = produto.id;
+          option.dataset.preco = produto.preco;
+          option.textContent = produto.descricao;
+          produtoSelect.appendChild(option);
+        });
+      } catch (error) {
+        alert('Erro ao carregar produtos.');
+      }
+    }
+
+    function atualizarValorTotal() {
+      const produtoSelecionado = document.getElementById('produto').selectedOptions[0];
+      const preco = parseFloat(produtoSelecionado?.dataset?.preco) || 0;
+      const quantidade = parseInt(document.getElementById('quantidade').value) || 1;
+      const valorTotal = preco * quantidade;
+      document.getElementById('valor_total').value = `R$ ${valorTotal.toFixed(2).replace('.', ',')}`;
+    }
+
+    document.getElementById('produto').addEventListener('change', atualizarValorTotal);
+    document.getElementById('quantidade').addEventListener('input', atualizarValorTotal);
+
+    document.getElementById('form-venda').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const data = document.getElementById('data').value;
+  const cliente_id = document.getElementById('cliente').value;
+  const produto_id = document.getElementById('produto').value;
+  const quantidade = parseInt(document.getElementById('quantidade').value);
+  const metodo_pagamento = document.getElementById('metodo_pagamento').value;
+  const valor_total = parseFloat(document.getElementById('valor_total').value.replace('R$', '').replace(',', '.'));
+
+  // Definindo o status com base no método de pagamento
+  const status = metodo_pagamento === 'PAGO' ? 'CONCLUÍDO' : 'PENDENTE';
+
+  try {
+    const response = await fetch('/vendas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        data,
+        cliente_id,
+        produto_id,
+        quantidade,
+        valor_total,
+        metodo_pagamento,
+        status,
+      }),
+    });
+
+    if (response.ok) {
+      alert('Venda registrada com sucesso!');
+      document.getElementById('form-venda').reset();
+      location.reload(); // Atualiza a página para exibir a nova venda.
+    } else {
+      alert('Erro ao registrar venda.');
+    }
+  } catch (error) {
+    console.error('Erro ao registrar venda:', error);
+    alert('Erro ao registrar venda.');
+  }
+});
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarClientes();
+      carregarProdutos();
+    });
+  </script>
+
+</body>
+</html>

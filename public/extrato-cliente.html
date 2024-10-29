@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extrato do Cliente</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap" rel="stylesheet" />
+
+    <style>
+      body {
+        background-color: #f5f5f5;
+        margin: 0;
+        font-family: "Amita", cursive;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        background-color: white;
+        width: 600px;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .client-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .client-initial {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #008080;
+        color: white;
+        font-size: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+      }
+
+      .payment-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background-color: #008080;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 20px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+      }
+
+      .payment-button:hover {
+        background-color: #006666;
+      }
+
+      .summary {
+        display: flex;
+        justify-content: space-between;
+        margin: 15px 0;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .movimentacoes {
+        text-align: left;
+        margin-top: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .movimentacao-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #ddd;
+      }
+
+      a {
+        display: block;
+        margin-top: 15px;
+        color: #008080;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="client-header">
+        <div class="client-initial" id="client-initial">A</div>
+        <h2 id="client-name">Nome do Cliente</h2>
+      </div>
+
+      <button class="payment-button" onclick="adicionarPagamento()">
+        <span>+</span> Adicionar Pagamento
+      </button>
+
+      <div class="summary">
+        <div>
+          <p>Mês Anterior</p>
+          <p id="mes-anterior">R$ 0,00</p>
+        </div>
+        <div>
+          <p>Mês Atual</p>
+          <p id="mes-atual">R$ 0,00</p>
+        </div>
+      </div>
+
+      <div class="movimentacoes" id="movimentacoes">
+        <!-- Movimentações carregadas dinamicamente -->
+      </div>
+
+      <a href="clientes.html">Voltar para Clientes</a>
+    </div>
+
+    <script>
+      async function carregarExtrato() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const clienteId = urlParams.get("id");
+
+  try {
+    const response = await fetch(`/clientes/${clienteId}/extrato`);
+    if (!response.ok) throw new Error("Erro ao carregar extrato");
+
+    const { nome, movimentacoes, mesAnterior, mesAtual } = await response.json();
+
+    if (!nome) throw new Error("Nome do cliente não encontrado");
+
+    // Preencher o nome e a inicial no HTML
+    document.getElementById("client-name").textContent = nome;
+    document.getElementById("client-initial").textContent = nome.charAt(0).toUpperCase();
+
+    // Preencher o resumo de valores
+    document.getElementById("mes-anterior").textContent = `R$ ${mesAnterior.toFixed(2).replace(".", ",")}`;
+    document.getElementById("mes-atual").textContent = `R$ ${mesAtual.toFixed(2).replace(".", ",")}`;
+
+    // Preencher as movimentações no HTML
+    const movimentacoesContainer = document.getElementById("movimentacoes");
+    movimentacoesContainer.innerHTML = ""; // Limpar antes de preencher
+    movimentacoes.forEach((mov) => {
+      const item = document.createElement("div");
+      item.classList.add("movimentacao-item");
+      item.innerHTML = `
+        <span>${new Date(mov.data).toLocaleDateString("pt-BR")}</span>
+        <span>R$ ${mov.valor.toFixed(2).replace(".", ",")}</span>
+        <span>${mov.status}</span>
+      `;
+      movimentacoesContainer.appendChild(item);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar extrato:", error);
+  }
+}
+
+function adicionarPagamento() {
+  alert("Funcionalidade em desenvolvimento!");
+}
+
+document.addEventListener("DOMContentLoaded", carregarExtrato);
+    </script>
+  </body>
+</html>
